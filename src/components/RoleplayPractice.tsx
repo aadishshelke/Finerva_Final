@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Star, Play, Clock, Users, Target, Loader2, CheckCircle2, AlertCircle, Lightbulb, Sparkles } from 'lucide-react';
+import { Star, Play, Clock, Users, Target, Loader2, CheckCircle2, AlertCircle, Lightbulb, Sparkles, Mic } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 const MODEL_NAME = "llama3";
@@ -57,6 +57,11 @@ const RoleplayPractice: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [typingIndicator, setTypingIndicator] = useState<boolean>(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [transcriptionError, setTranscriptionError] = useState<string | null>(null);
 
   const scenarios: Scenario[] = [
     {
@@ -269,6 +274,80 @@ const RoleplayPractice: React.FC = () => {
     return items;
   };
 
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        await transcribeAudio(audioBlob);
+        
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setTranscriptionError(null);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      setTranscriptionError('Error accessing microphone. Please ensure you have granted microphone permissions.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const transcribeAudio = async (audioBlob: Blob) => {
+    setIsTranscribing(true);
+    setTranscriptionError(null);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', audioBlob, 'recording.webm');
+
+      const response = await axios.post('http://127.0.0.1:8000/transcribe/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: 15000, // 15 second timeout
+      });
+
+      const transcript = response.data.transcript;
+      setUserInput(prev => prev + (prev ? ' ' : '') + transcript);
+    } catch (error) {
+      console.error('Error transcribing audio:', error);
+      let errorMessage = 'Error transcribing audio. ';
+      
+      if (axios.isAxiosError(error)) {
+        if (error.code === 'ERR_NETWORK') {
+          errorMessage += 'Unable to connect to the server. Please ensure the backend server is running at http://127.0.0.1:8000';
+        } else if (error.code === 'ECONNABORTED') {
+          errorMessage += 'Request timed out. The server took too long to respond.';
+        } else if (error.response) {
+          errorMessage += `Server error: ${error.response.data.detail || 'An unexpected error occurred'}`;
+        }
+      }
+      
+      setTranscriptionError(errorMessage);
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
   return (
     <div className="space-y-6 p-4 max-w-6xl mx-auto">
       {/* Header */}
@@ -401,19 +480,43 @@ const RoleplayPractice: React.FC = () => {
                   loading ? 'bg-gray-100 opacity-60 cursor-not-allowed' : 'bg-white'
                 }`}
               />
-              <Button 
-                className={`mt-2 w-full sm:w-auto ${
-                  loading ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-                onClick={handleUserSubmit} 
-                disabled={loading}
-              >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  'Send'
-                )}
-              </Button>
+              <div className="flex gap-2 mt-2">
+                <Button 
+                  variant={isRecording ? "destructive" : "outline"}
+                  size="icon"
+                  className={`${
+                    loading || isTranscribing ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  onClick={isRecording ? stopRecording : startRecording}
+                  disabled={loading || isTranscribing}
+                >
+                  {isTranscribing ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Mic className={`w-5 h-5 ${isRecording ? 'animate-pulse' : ''}`} />
+                  )}
+                </Button>
+                <Button 
+                  className={`flex-1 sm:flex-none ${
+                    loading || isTranscribing ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  onClick={handleUserSubmit} 
+                  disabled={loading || isTranscribing}
+                >
+                  {loading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    'Send'
+                  )}
+                </Button>
+              </div>
+              
+              {transcriptionError && (
+                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">
+                  <AlertCircle className="w-4 h-4 inline mr-1" />
+                  {transcriptionError}
+                </div>
+              )}
             </div>
 
             {feedback && (

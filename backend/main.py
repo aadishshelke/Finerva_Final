@@ -112,7 +112,12 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # Development CORS configuration
-origins = ["*"]  
+origins = [
+    "http://localhost:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8080"
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -833,6 +838,27 @@ Focus on practical sales coaching advice related to voice characteristics, speak
                 "Practice varying vocal dynamics to maintain client interest during presentations"
             ]
         }
+
+@app.post("/transcribe/")
+async def transcribe_audio(file: UploadFile = File(...)):
+    try:
+        # Read the uploaded audio file
+        audio = await file.read()
+        
+        # Save temporarily
+        temp_path = "temp_audio.webm"
+        with open(temp_path, "wb") as f:
+            f.write(audio)
+        
+        # Transcribe using Whisper
+        result = whisper_model.transcribe(temp_path, language="en")
+        
+        # Clean up temporary file
+        os.remove(temp_path)
+        
+        return {"transcript": result["text"]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     logger.info("Starting FastAPI server...")
