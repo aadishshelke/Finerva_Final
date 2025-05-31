@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Star, Play, Clock, Users, Target, Loader2, CheckCircle2, AlertCircle, Lightbulb, Sparkles } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 const MODEL_NAME = "llama3";
 
@@ -23,6 +24,13 @@ interface Scenario {
   initialMessage: string;
 }
 
+interface CustomScenario {
+  customerProfile: string;
+  customerNeeds: string;
+  customerConcerns: string;
+  salesFocus: string;
+}
+
 interface FeedbackItem {
   title: string;
   summary: string;
@@ -36,9 +44,15 @@ interface FeedbackItem {
 }
 
 const RoleplayPractice: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const location = useLocation();
+  const [messages, setMessages] = useState<Message[]>([
+    { 
+      role: 'customer', 
+      content: "Hi, I'm a 39-year-old single mother who works as a school teacher. I want to secure life insurance to protect my 8-year-old daughter's future. I'm concerned about affordability and want to understand the benefits clearly."
+    }
+  ]);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [scenario, setScenario] = useState<string>("Customer: I'm interested in learning about life insurance options.");
+  const [scenario, setScenario] = useState<string>("Customer: Hi, I'm a 39-year-old single mother who works as a school teacher. I want to secure life insurance to protect my 8-year-old daughter's future. I'm concerned about affordability and want to understand the benefits clearly.");
   const [userInput, setUserInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
@@ -78,10 +92,23 @@ const RoleplayPractice: React.FC = () => {
   ];
 
   useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([{ role: 'customer', content: scenario.split("Customer: ")[1] }]);
+    // Handle scenario data from dashboard
+    if (location.state?.scenario) {
+      try {
+        const customScenario: CustomScenario = JSON.parse(location.state.scenario);
+        const initialMessage = `Customer: Hi, I'm a ${customScenario.customerProfile}. ${customScenario.customerNeeds}. ${customScenario.customerConcerns}.`;
+        setScenario(initialMessage);
+        setMessages([{ role: 'customer', content: initialMessage.split("Customer: ")[1] }]);
+        
+        // Auto-start if specified
+        if (location.state.autoStart) {
+          setSelectedScenario('custom');
+        }
+      } catch (error) {
+        console.error('Error parsing scenario:', error);
+      }
     }
-  }, [scenario]);
+  }, [location.state]);
 
   const handleUserSubmit = async () => {
     if (!userInput.trim()) return;

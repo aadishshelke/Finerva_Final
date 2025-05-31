@@ -16,7 +16,7 @@ const Leaderboard = () => {
   return (
     <Card 
       className="p-6 space-y-4 card-hover cursor-pointer transition-all duration-300 hover:shadow-lg"
-      onClick={() => navigate('/gromo-xp-arena')}
+      onClick={() => navigate('/achievements')}
     >
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-800">📊 Regional Leaderboard</h2>

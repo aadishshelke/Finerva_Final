@@ -22,7 +22,7 @@ const CallToActionCards = () => {
       icon: <MessageSquare className="h-6 w-6" />,
       buttonText: "Start Practice",
       gradient: "from-purple-500 to-pink-500",
-      onClick: () => navigate('/roleplay-practice')
+      onClick: () => navigate('/roleplay')
     },
     {
       title: "Voice Chat Coach",
@@ -30,27 +30,28 @@ const CallToActionCards = () => {
       icon: <Mic className="h-6 w-6" />,
       buttonText: "Start Session",
       gradient: "from-green-500 to-teal-500",
-      onClick: () => navigate('/voice-chat-coach')
+      onClick: () => navigate('/voice-chat')
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {actions.map((action, index) => (
-        <Card key={index} className="p-6 hover:shadow-lg transition-shadow duration-200">
-          <div className="flex flex-col h-full">
-            <div className={`p-3 rounded-lg bg-gradient-to-r ${action.gradient} w-fit mb-4`}>
-              {action.icon}
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">{action.title}</h3>
-            <p className="text-gray-600 mb-4 flex-grow">{action.description}</p>
-            <Button 
-              className={`w-full bg-gradient-to-r ${action.gradient} hover:opacity-90 transition-opacity`}
-              onClick={action.onClick}
-            >
-              {action.buttonText}
-            </Button>
+        <Card
+          key={index}
+          className={`p-6 bg-gradient-to-r ${action.gradient} text-white hover:shadow-lg transition-all duration-200`}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            {action.icon}
+            <h3 className="text-lg font-semibold">{action.title}</h3>
           </div>
+          <p className="text-white/80 mb-4">{action.description}</p>
+          <Button
+            onClick={action.onClick}
+            className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20"
+          >
+            {action.buttonText}
+          </Button>
         </Card>
       ))}
     </div>

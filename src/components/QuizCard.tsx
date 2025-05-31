@@ -3,9 +3,15 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Brain, Trophy } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const QuizCard = () => {
+  const navigate = useNavigate();
   const progress = 75; // 75% complete
+
+  const handleStartQuiz = () => {
+    navigate('/learning-modules', { state: { autoStartQuiz: true } });
+  };
 
   return (
     <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50">
@@ -39,7 +45,10 @@ const QuizCard = () => {
           </div>
         </div>
 
-        <Button className="w-full bg-purple-600 hover:bg-purple-700">
+        <Button 
+          className="w-full bg-purple-600 hover:bg-purple-700"
+          onClick={handleStartQuiz}
+        >
           Start Quiz
         </Button>
       </div>

@@ -8,6 +8,7 @@ import XPStreakBar from './XPStreakBar';
 import SurpriseBox from './SurpriseBox';
 import Quiz from './Quiz';
 import { useToast } from '../hooks/use-toast';
+import { useLocation } from 'react-router-dom';
 
 interface Lesson {
   id: number;
@@ -27,11 +28,13 @@ interface Module {
 
 const LearningModules: React.FC = () => {
   const { toast } = useToast();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<'modules' | 'quiz'>('modules');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
   const [userStats, setUserStats] = useState({
-    xp: 750,
-    maxXP: 1000,
+    xp: 1250,
+    maxXP: 2000,
     streak: 7,
     dailyGoal: 5,
     dailyProgress: 3
@@ -41,6 +44,13 @@ const LearningModules: React.FC = () => {
     const saved = localStorage.getItem('sidebarCollapsed');
     setIsSidebarCollapsed(saved ? JSON.parse(saved) : false);
   }, []);
+
+  useEffect(() => {
+    // Check if we should auto-start the quiz
+    if (location.state?.autoStartQuiz) {
+      setShowQuiz(true);
+    }
+  }, [location.state]);
 
   const [modules, setModules] = useState<Module[]>([
     {
@@ -292,7 +302,7 @@ const LearningModules: React.FC = () => {
               </SalesPath>
             </div>
           ) : (
-            <Quiz />
+            <Quiz onComplete={handleQuizComplete} />
           )}
         </motion.div>
 

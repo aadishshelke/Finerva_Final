@@ -26,7 +26,7 @@ export const Settings: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
               <Input 
                 type="text" 
-                defaultValue="John Doe"
+                defaultValue="Bhagyashri Meena"
               />
             </div>
             
@@ -34,7 +34,7 @@ export const Settings: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <Input 
                 type="email" 
-                defaultValue="john.doe@gromo.com"
+                defaultValue="bhagyashri@gromo.com"
               />
             </div>
             
