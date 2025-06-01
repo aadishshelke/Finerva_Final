@@ -6,7 +6,7 @@ import Dashboard from '@/pages/Dashboard';
 import Achievements from '@/pages/Achievements';
 import RoleplayPractice from './components/RoleplayPractice';
 import VoiceChatCoach from './components/VoiceChatCoach';
-import DailyLearning from './components/DailyLearning';
+// import DailyLearning from './components/DailyLearning';
 import { SavedScripts } from './components/SavedScripts';
 import { Settings } from './components/Settings';
 import { Analytics } from './components/Analytics';
@@ -22,7 +22,7 @@ const App = () => {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="roleplay" element={<RoleplayPractice />} />
             <Route path="voice-chat" element={<VoiceChatCoach />} />
-            <Route path="daily" element={<DailyLearning />} />
+            {/* <Route path="daily" element={<DailyLearning />} /> */}
             <Route path="achievements" element={<Achievements />} />
             <Route path="scripts" element={<SavedScripts />} />
             <Route path="analytics" element={<Analytics />} />

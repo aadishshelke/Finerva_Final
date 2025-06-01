@@ -117,7 +117,7 @@ const VoiceChatCoach = () => {
       }
     } catch (error) {
       console.error('Error analyzing tone:', error);
-    }
+      }
   };
 
   const transcribeAudio = async (audioBlob) => {
@@ -250,15 +250,15 @@ const VoiceChatCoach = () => {
               }}
             >
               {transcriptionError}
-            </Typography>
-          )}
+          </Typography>
+        )}
 
           {isTranscribing && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <CircularProgress size={24} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <CircularProgress size={24} />
               <Typography variant="body1">Transcribing your voice...</Typography>
-            </Box>
-          )}
+          </Box>
+        )}
 
           {transcript && (
             <Paper 

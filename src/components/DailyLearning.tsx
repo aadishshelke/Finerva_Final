@@ -1,3 +1,4 @@
+/*
 import React from 'react';
 import { Calendar, Clock, Award, CheckCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -91,4 +92,5 @@ export const DailyLearning: React.FC = () => {
   );
 };
 
-export default DailyLearning; 
+export default DailyLearning;
+*/ 

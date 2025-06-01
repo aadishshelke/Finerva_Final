@@ -26,7 +26,6 @@ const sidebarItems: SidebarItem[] = [
   { icon: Users, label: 'Roleplay Practice', path: '/roleplay' },
   { icon: BookOpen, label: 'Learning Modules', path: '/learning-modules' },
   { icon: Mic, label: 'Voice Chat Coach', path: '/voice-chat' },
-  { icon: Calendar, label: 'Daily Learning', path: '/daily' },
   { icon: Trophy, label: 'Achievements', path: '/achievements' },
   { icon: FileText, label: 'Saved Scripts', path: '/scripts' },
   { icon: BarChart, label: 'Analytics & Reports', path: '/analytics' },
